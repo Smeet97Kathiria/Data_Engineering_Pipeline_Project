@@ -1,0 +1,61 @@
+
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: airflow
+  namespace: dev
+  annotations:
+    flux.weave.works/automated: "true"
+spec:
+  releaseName: airflow-dev
+  chart:
+    repository: https://edwinguo.github.io/airflow-eks-helm-chart
+    name: airflow
+    version: 1.0.1
+  values:
+    images:
+      airflow:
+        repository: "edwinguo123/docker-eks-airflow"
+        tag: "0.1.3"
+    fernetKey: "7CwHL-dZshOoFGicV5DuqPdeEcBKN66SDcI-TfMFPas="
+    env:
+      - name: "AIRFLOW__CORE__FERNET_KEY"
+        value: "7CwHL-dZshOoFGicV5DuqPdeEcBKN66SDcI-TfMFPas="
+      - name: "AIRFLOW__KUBERNETES__DAGS_IN_IMAGE"
+        value: "False"
+      - name: "AIRFLOW__KUBERNETES__NAMESPACE"
+        value: "dev"
+      - name: "AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY"
+        value: "edwinguo123/docker-eks-airflow"
+      - name: "AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG"
+        value: "0.1.3"
+      - name: "AIRFLOW__KUBERNETES__RUN_AS_USER"
+        value: "50000"
+      - name: "AIRFLOW__KUBERNETES__GIT_SYNC_RUN_AS_USER"
+        value: "65533"
+      - name: "AIRFLOW__CORE__LOAD_EXAMPLES"
+        value: "False"
+      - name: "AIRFLOW__API__AUTH_BACKEND"
+        value: "airflow.contrib.auth.backends.password_auth"
+      - name: "AWS_DEFAULT_REGION"
+        value: "us-west-2"
+      - name: "AWS_REGION"
+        value: "us-west-2"
+        
+    executor: "CeleryExecutor"
+    api:
+      authBackend: "airflow.contrib.auth.backends.password_auth"
+    dags:
+      persistence:
+        enabled: false
+      gitSync:
+        enabled: true
+        repo: https://github.com/Smeet97Kathiria/airflow-private-dags.git
+        branch: master
+        maxFailures: 0
+        subPath: ""
+        wait: 20
+
+
+
+
